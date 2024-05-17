@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS data_[|context.table_name|] (
+    date TEXT CONSTRAINT pk_date PRIMARY KEY,
+    activity TEXT NOT NULL
+);

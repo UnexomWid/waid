@@ -1,0 +1,93 @@
+@font-face {
+    font-family: 'Inter';
+    src: url('/Inter.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Amatic SC';
+    font-weight: 400;
+    src: url('/AmaticSC-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Amatic SC';
+    font-weight: 700;
+    src: url('/AmaticSC-Bold.ttf') format('truetype');
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0px;
+
+    font-family: 'Inter', sans-serif;
+    font-size: 1em;
+    font-weight: 500;
+    line-height: 1;
+}
+
+::selection {
+    color: #FFFFFF !important;
+    background: #00D6EA;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+}
+
+img {
+    user-select: none;
+}
+
+.title {
+    font-size: 3rem;
+    font-family: 'Amatic SC', sans-serif;
+    font-weight: 700;
+}
+
+#title-left {
+    align-self: start;
+}
+
+#title-right {
+    align-self: end;
+}
+
+#subtitle {
+    margin: 10px 0 20px 0;
+    font-size: 0.85rem;
+    font-weight: 300;
+}
+
+#logo {
+    max-width: 150px;
+    width: auto;
+    height: auto;
+}
+
+#container {
+    margin: 30px auto 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#title-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid black;
+}
+
+#pie {
+    display: block;
+    max-width: 500px;
+    max-height: 500px;
+}
+
+#bar {
+    display: block;
+    max-width: 500px;
+    max-height: 175px;
+}

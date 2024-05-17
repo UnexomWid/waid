@@ -1,0 +1,28 @@
+{
+    "server": {
+        "enable": true,
+        "endpoint": "http://localhost:3010/api/activity",
+        "secret": "placeholder",
+        "send_frequency": 300
+    },
+    "user_inactive_threshold": 300,
+    "categories": [{
+        "name": "Reddit",
+        "window_title": "^.*(Reddit)|(: r/).*$"
+    }, {
+        "name": "YouTube",
+        "window_title": "^.*YouTube - Google Chrome$"
+    }, {
+        "name": "Messenger",
+        "window_title": "^Messenger - Google Chrome$"
+    }, {
+        "name": "Browsing",
+        "window_title": "^.* - Google Chrome$"
+    }, {
+        "name": "Work",
+        "window_title": "^.*(Visual Studio Code$)|(Microsoft Visual Studio( \\(Administrator\\))?$)"
+    }, {
+        "name": "Other",
+        "window_title": "^.*$"
+    }]
+}

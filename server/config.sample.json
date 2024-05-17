@@ -1,0 +1,22 @@
+{
+    "host": "localhost",
+    "port": "3010",
+    "database": "data/data.db",
+    "clients": {
+        "default": {
+            "alias": "PC",
+            "secret": "placeholder"
+        }
+    },
+    "categories": {
+        "Work": {
+            "color": "#36A2EB"
+        },
+        "YouTube": {
+            "color": "#FF6384"
+        },
+        "Other": {
+            "color": "#FF9F40"
+        }
+    }
+}
