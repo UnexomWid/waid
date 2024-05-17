@@ -1,4 +1,4 @@
-# About <a href="https://github.com/UnexomWid/eryn"><img align="right" src="https://img.shields.io/badge/ERYN-0.3-4527A0?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBpZD0iaWNvIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0gImh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPg0KICAgIDxnIHRyYW5zZm9ybT0icm90YXRlKC0xMCwgNTEyLCA1MTIpIiBzdHlsZT0iZmlsbDogI0ZGRkZGRjsiPg0KICAgICAgICA8cGF0aCBkPSJNIDE5MSA5NCBDIDE4OS4zMzggOTQgMTg4IDk1LjMzOCAxODggOTcgTCAxODggMzI5IEMgMTg4IDMzMC42NjIgMTg5LjMzOCAzMzIgMTkxIDMzMiBMIDkzMiAzMzIgQyA5MzMuNjYyIDMzMiA5MzUgMzMwLjY2MiA5MzUgMzI5IEwgOTM1IDk3IEMgOTM1IDk1LjMzOCA5MzMuNjYyIDk0IDkzMiA5NCBMIDE5MSA5NCB6IE0gMzkgMzk0IEMgMzcuMzM4IDM5NCAzNiAzOTUuMzM4IDM2IDM5NyBMIDM2IDYyOSBDIDM2IDYzMC42NjIgMzcuMzM4IDYzMiAzOSA2MzIgTCA3ODAgNjMyIEMgNzgxLjY2MiA2MzIgNzgzIDYzMC42NjIgNzgzIDYyOSBMIDc4MyAzOTcgQyA3ODMgMzk1LjMzOCA3ODEuNjYyIDM5NCA3ODAgMzk0IEwgMzkgMzk0IHogTSAxOTEgNjk0IEMgMTg5LjMzOCA2OTQgMTg4IDY5NS4zMzggMTg4IDY5NyBMIDE4OCA5MjkgQyAxODggOTMwLjY2MiAxODkuMzM4IDkzMiAxOTEgOTMyIEwgOTMyIDkzMiBDIDkzMy42NjIgOTMyIDkzNSA5MzAuNjYyIDkzNSA5MjkgTCA5MzUgNjk3IEMgOTM1IDY5NS4zMzggOTMzLjY2MiA2OTQgOTMyIDY5NCBMIDE5MSA2OTQgeiAiIC8%2BDQogICAgPC9nPg0KPC9zdmc%2B" alt="eryn" /></a><a href="https://www.rust-lang.org/"><img align="right" src="https://img.shields.io/badge/Rust-1%2E73-f74c00?logo=Rust" alt="Rust 1.73" /></a> # About <a href="https://nodejs.org/en"><img align="right" src="https://img.shields.io/badge/NodeJS-16+-339933?logo=node.js" alt="NodeJS" /></a>
+# About <a href="https://github.com/UnexomWid/eryn"><img align="right" src="https://img.shields.io/badge/ERYN-0.3-4527A0?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBpZD0iaWNvIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0gImh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPg0KICAgIDxnIHRyYW5zZm9ybT0icm90YXRlKC0xMCwgNTEyLCA1MTIpIiBzdHlsZT0iZmlsbDogI0ZGRkZGRjsiPg0KICAgICAgICA8cGF0aCBkPSJNIDE5MSA5NCBDIDE4OS4zMzggOTQgMTg4IDk1LjMzOCAxODggOTcgTCAxODggMzI5IEMgMTg4IDMzMC42NjIgMTg5LjMzOCAzMzIgMTkxIDMzMiBMIDkzMiAzMzIgQyA5MzMuNjYyIDMzMiA5MzUgMzMwLjY2MiA5MzUgMzI5IEwgOTM1IDk3IEMgOTM1IDk1LjMzOCA5MzMuNjYyIDk0IDkzMiA5NCBMIDE5MSA5NCB6IE0gMzkgMzk0IEMgMzcuMzM4IDM5NCAzNiAzOTUuMzM4IDM2IDM5NyBMIDM2IDYyOSBDIDM2IDYzMC42NjIgMzcuMzM4IDYzMiAzOSA2MzIgTCA3ODAgNjMyIEMgNzgxLjY2MiA2MzIgNzgzIDYzMC42NjIgNzgzIDYyOSBMIDc4MyAzOTcgQyA3ODMgMzk1LjMzOCA3ODEuNjYyIDM5NCA3ODAgMzk0IEwgMzkgMzk0IHogTSAxOTEgNjk0IEMgMTg5LjMzOCA2OTQgMTg4IDY5NS4zMzggMTg4IDY5NyBMIDE4OCA5MjkgQyAxODggOTMwLjY2MiAxODkuMzM4IDkzMiAxOTEgOTMyIEwgOTMyIDkzMiBDIDkzMy42NjIgOTMyIDkzNSA5MzAuNjYyIDkzNSA5MjkgTCA5MzUgNjk3IEMgOTM1IDY5NS4zMzggOTMzLjY2MiA2OTQgOTMyIDY5NCBMIDE5MSA2OTQgeiAiIC8%2BDQogICAgPC9nPg0KPC9zdmc%2B" alt="eryn" /></a><a href="https://nodejs.org/en"><img align="right" src="https://img.shields.io/badge/NodeJS-16+-339933?logo=node.js" alt="NodeJS" /></a><a href="https://www.rust-lang.org/"><img align="right" src="https://img.shields.io/badge/Rust-1%2E73-f74c00?logo=Rust" alt="Rust 1.73" /></a>
 
 
 **WAID** or *What the fuck am I doing?* is a Windows tool that tracks how you use your time.
@@ -28,14 +28,38 @@ setup.bat
 
 ...and that's it ツ
 
+To run WAID, all you have to do is this:
+
+```sh
+start.bat
+```
+
+This will open 2 terminal tabs. You have to keep both tabs open.
+
+In the client tab you'll see info like the current window title, detected activity, etc.
+
+Every ~5 minutes, the client will send the data to the server. You can see statistics via the browser:
+
+```
+http://localhost:3010
+```
+
+Because updates happen every 5 minutes, you will only see a blank page if you just started the tool. Just wait a bit.
+
+Why only every 5 minutes? Because there's no point in doing it more often at the moment.
+
+You can use the left/right arrow keys to move between days more quickly.
+
+To change which activities you want the tool to detect, see below.
+
 # Configuration
 
 The default configuration is ready to go. However, if you want to customize stuff (like activities based on window titles), continue reading.
 
 ## Client
 
-You should see the file `client/waid.json`. You can edit the existing categories, which are used to detect what kind
-of activity you are doing, based on the title of the window that you are focused on; `window_title` is a regex.
+Open the file `client/waid.json`. You can edit the existing categories, which are used to detect what kind
+of activity you are doing based on the title of the window that your mouse cursor is hovering on; `window_title` is a regex.
 
 `user_inactive_threshold` (in seconds) means that if you are away from the computer longer than this, the program
 will stop tracking what you do since you are away. Being away means not using your mouse or keyboard. When you come back,
@@ -49,34 +73,11 @@ a good compromise.
 
 ## Server
 
-You should see the file `server/config.json`. You can change the hostname/port. **Make sure they match what's in the client config**.
+Open the file `server/config.json`. You can change the hostname/port. **Make sure they match what's in the client config**.
 
 The server config also stores a color for each category, which is used for rendering charts.
 The list of categories should be the same as in the client config.
-
-# Usage
-
-Just run:
-
-```sh
-start.bat
-```
-
-...which will open 2 terminal tabs: one for the server, and one for the client.
-
-You have to keep both tabs open.
-
-In the client terminal you'll see info like the current window title, detected activity, etc.
-
-Every ~5 minutes, the client will send the data to the server. You can see statistics via the browser:
-
-```
-http://localhost:3010
-```
-
-Make sure to use the hostname/port from the server config file.
-
-You can use the left/right arrow keys to move between days more quickly.
+If you **add a new category** in the client config, make sure to **assign a color** for it here.
 
 # How it works
 

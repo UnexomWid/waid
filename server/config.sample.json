@@ -9,14 +9,23 @@
         }
     },
     "categories": {
-        "Work": {
-            "color": "#36A2EB"
+        "Reddit": {
+            "color": "#FC4401"
         },
         "YouTube": {
             "color": "#FF6384"
         },
+        "Messenger": {
+            "color": "#09649D"
+        },
+        "Browsing": {
+            "color": "#1B9E5E"
+        },
+        "Work": {
+            "color": "#A478DB"
+        },
         "Other": {
-            "color": "#FF9F40"
+            "color": "#A5A5A5"
         }
     }
 }
