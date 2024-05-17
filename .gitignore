@@ -1,4 +1,5 @@
 client/target/
+client/waid.json
 server/config.json
 server/node_modules/
 server/data/
