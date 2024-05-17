@@ -1,4 +1,4 @@
 client/target/
 server/config.json
 server/node_modules/
-
+server/data/
