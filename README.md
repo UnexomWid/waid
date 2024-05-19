@@ -93,7 +93,7 @@ Instead of looking at the current focused window, the tool looks at the window o
 
 Why? Because you could have focus on the Visual Studio window, while scrolling on Reddit.
 
-It detects the window title, and picks the current activity based on the config file.
+It detects the window title and process path, and picks the current activity based on the config file.
 
 If you don't use your keyboard or mouse for a period of time (see the client config), the tool will stop tracking until you are active again.
 
