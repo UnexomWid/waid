@@ -38,6 +38,10 @@
             let pieChart = null;
             let barChart = null;
 
+            document.getElementById('logo').addEventListener('click', (e) => {
+                document.location.reload();
+            });
+
             document.addEventListener('change', (e) => {
                 onDateChange(e.target.value);
             });

@@ -63,6 +63,7 @@ img {
     max-width: 150px;
     width: auto;
     height: auto;
+    cursor: pointer;
 }
 
 #container {
