@@ -13,16 +13,19 @@
             "color": "#FC4401"
         },
         "YouTube": {
-            "color": "#FF6384"
+            "color": "#F70101"
         },
         "Messenger": {
-            "color": "#09649D"
+            "color": "#02A4F8"
         },
         "Browsing": {
-            "color": "#1B9E5E"
+            "color": "#F2CA54"
         },
         "Work": {
             "color": "#A478DB"
+        },
+        "Gaming": {
+            "color": "#1B9E5E"
         },
         "Other": {
             "color": "#A5A5A5"

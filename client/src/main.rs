@@ -6,12 +6,16 @@
  * (c) 2024 UW
  */
 use windows::Win32::{
-    Foundation::{HWND, MAX_PATH, POINT},
+    Foundation::{HWND, MAX_PATH, POINT, CloseHandle},
     UI::{
-        WindowsAndMessaging::{GetCursorPos, GetParent, GetWindowTextW, WindowFromPoint},
+        WindowsAndMessaging::{GetCursorPos, GetParent, GetWindowTextW, WindowFromPoint, GetWindowThreadProcessId},
         Input::KeyboardAndMouse::{GetLastInputInfo, LASTINPUTINFO}
     },
-    System::SystemInformation::{GetTickCount}
+    System::{
+        SystemInformation::{GetTickCount},
+        ProcessStatus::{GetModuleFileNameExW},
+        Threading::{OpenProcess, PROCESS_QUERY_INFORMATION, PROCESS_VM_READ}
+    }
 };
 
 use serde::{Serialize, Deserialize};
@@ -37,8 +41,10 @@ struct Server {
 #[derive(Deserialize)]
 struct Category {
     name: String,
-    #[serde(with = "serde_regex")]
-    window_title: Regex,
+    #[serde(with = "serde_regex", default)]
+    window_title: Vec<Regex>,
+    #[serde(with = "serde_regex", default)]
+    process_path: Vec<Regex>
 }
 
 #[derive(Deserialize)]
@@ -81,22 +87,25 @@ fn load_config() -> Config {
     "user_inactive_threshold": 300,
     "categories": [{
         "name": "Reddit",
-        "window_title": "^.*(Reddit)|(: r/).*$"
+        "window_title": ["^.*(Reddit)|(: r/).*$"]
     }, {
         "name": "YouTube",
-        "window_title": "^.*YouTube - Google Chrome$"
+        "window_title": ["^.*YouTube - Google Chrome$"]
     }, {
         "name": "Messenger",
-        "window_title": "^Messenger - Google Chrome$"
+        "window_title": ["^Messenger - Google Chrome$"]
     }, {
         "name": "Browsing",
-        "window_title": "^.* - Google Chrome$"
+        "window_title": ["^.* - Google Chrome$"]
     }, {
         "name": "Work",
-        "window_title": "^.*(Visual Studio Code$)|(Microsoft Visual Studio( \\(Administrator\\))?$)"
+        "window_title": ["^.*(Visual Studio Code$)|(Microsoft Visual Studio( \\(Administrator\\))?$)"]
+    }, {
+        "name": "Gaming",
+        "process_path": ["^.*steamapps\\\\common\\\\.*\\.exe$"]
     }, {
         "name": "Other",
-        "window_title": "^.*$"
+        "window_title": ["^.*$"]
     }]
 }"#,
         )
@@ -117,7 +126,7 @@ unsafe fn get_cursor_pos() -> POINT {
     return loc;
 }
 
-unsafe fn get_window_at(pos: POINT) -> String {
+unsafe fn get_window_at(pos: POINT) -> (String, String) {
     let mut handle = WindowFromPoint(pos);
     let mut parent = GetParent(handle);
 
@@ -133,13 +142,35 @@ unsafe fn get_window_at(pos: POINT) -> String {
     let mut title = String::from_utf16_lossy(&title);
     title.truncate(title.trim_matches(char::from(0)).len());
 
-    return title;
+    let mut pid = 0;
+    GetWindowThreadProcessId(handle, Some(&mut pid));
+
+    let proc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid).unwrap();
+
+    let mut path: [u16; MAX_PATH as usize] = [0; MAX_PATH as usize];
+
+    GetModuleFileNameExW(proc, None, &mut path);
+
+    let mut path = String::from_utf16_lossy(&path);
+    path.truncate(path.trim_matches(char::from(0)).len());
+
+    CloseHandle(proc).unwrap();
+
+    return (title, path);
 }
 
-fn get_window_category(title: &str, config: &Config) -> String {
+fn get_window_category(title: &str, path: &str, config: &Config) -> String {
     for cat in &config.categories {
-        if cat.window_title.is_match(title) {
-            return String::from(&cat.name);
+        for expr in &cat.window_title {
+            if expr.is_match(title) {
+                return String::from(&cat.name);
+            }
+        }
+
+        for expr in &cat.process_path {
+            if expr.is_match(path) {
+                return String::from(&cat.name);
+            }
         }
     }
 
@@ -217,11 +248,10 @@ fn main() {
                 println!("WAID (server error)\n---");
             }
 
-            let window = get_window_at(get_cursor_pos());
+            let (title, path) = get_window_at(get_cursor_pos());
 
-            // PID cache: if the pid and title are the same, get the category from cache
-            // ctrlc crate, send the data to the server when closing
-            let category = get_window_category(&window, &config);
+            // TODO: PID cache; if the pid and title are the same, get the category from cache
+            let category = get_window_category(&title, &path, &config);
 
             let now = OffsetDateTime::now_local().unwrap();
 
@@ -243,7 +273,7 @@ fn main() {
                         if user_last_active >= config.user_inactive_threshold {
                             println!("INACTIVE");
                         } else {
-                            println!("Title: {}\nDetected: {}", window, category);
+                            println!("Title: {}\nPath: {}\nDetected: {}", title, path, category);
 
                             let date = format_date(now.date());
 
