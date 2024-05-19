@@ -61,6 +61,8 @@ The default configuration is ready to go, but you can customize your activity ca
 Open the file `client/waid.json`. You can edit the existing categories, which are used to detect what kind
 of activity you are doing based on the window that your mouse cursor is hovering on.
 
+Use the default config as an example. If it's still not clear how to add your custom categories, continue reading below.
+
 `window_title` is an array of regexes; if the current window title matches any of these, the activity is set to that specific category.
 
 `process_path` is the same, but it looks at the process path of the window. **Use `\\\\` for path separators, otherwise the regexes won't match!**.
@@ -68,6 +70,8 @@ of activity you are doing based on the window that your mouse cursor is hovering
 The priority is based on the order of the categories. The first category is checked first; if it doesn't match, the second is checked, and so on.
 
 Therefore, you should place categories with **more specific regexes** first, and categories with **more general regexes** last.
+
+If you **add new categories**, make sure you **assign a color** for them in the [server config](#Server).
 
 `user_inactive_threshold` (in seconds) means that if you are away from the computer longer than this, the program
 will stop tracking what you do since you are away. Being away means not using your mouse or keyboard. When you come back,
