@@ -28,6 +28,8 @@ setup.bat
 
 ...and that's it ツ
 
+# Running
+
 To run WAID, all you have to do is this:
 
 ```sh
