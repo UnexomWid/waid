@@ -118,7 +118,6 @@ make sure to use a random secret so that no one else except your client can make
 # Todo
 
 - detect games made with Unity
-- add more ways to detect activities (e.g. based on the process name)
 - use a cache to store pairs of PID -> detected activity
 
 # License <a href="https://github.com/UnexomWid/waid/blob/master/LICENSE"><img align="right" src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" /></a>
