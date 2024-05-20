@@ -52,8 +52,6 @@ try {
     app.use(express.static(path.join(__dirname, '..', 'public')));
     app.use(router);
 
-    // The HTTP server only serves the static files,
-    // while the WebSocket server provides the functionality
     const server = http.createServer(app);
     log.ok('HTTP server initialized');
 

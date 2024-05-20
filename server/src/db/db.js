@@ -26,13 +26,13 @@ export default {
                 driver: sqlite3.Database
             });
         } catch(ex) {
-            return Promise.reject(`Failed to create database file '${file}'\n${ex}`);
+            throw `Failed to create database file '${file}'\n${ex}`;
         }
 
         try {
             for (const client of Object.keys(config.getClients())) {
                 if (!(/^[a-zA-Z]+$/.test(client))) {
-                    return Promise.reject(`Client id '${client}' is invalid; must only contain a-zA-Z\n`);
+                    throw `Client id '${client}' is invalid; must only contain a-zA-Z\n`;
                 }
 
                 const create_table = eryn.render('db/create.eryn', {
@@ -45,7 +45,7 @@ export default {
             return;
         } catch(ex) {
             await db.close();
-            return Promise.reject(`Failed to create database tables; file 'db/create.eryn' is missing or contains an invalid query\n${ex}`);
+            throw `Failed to create database tables; file 'db/create.eryn' is missing or contains an invalid query\n${ex}`;
         }
     },
     uninit: async () => {
@@ -73,13 +73,13 @@ export default {
                         }
                     }
                 } catch (ex) {
-                    return Promise.reject(`Failed to retrieve activity for client '${client}' on ${date}\n${ex}`);
+                    throw `Failed to retrieve activity for client '${client}' on ${date}\n${ex}`;
                 }
             }
 
             return data;
         } catch(ex) {
-            return Promise.reject(`Failed to retrieve activity on ${date}\n${ex}`);
+            throw `Failed to retrieve activity on ${date}\n${ex}`;
         }
     },
     update: async(id, data) => {
@@ -110,7 +110,7 @@ export default {
                 }
             }
         } catch(ex) {
-            return Promise.reject(`Failed to update data for client '${id}' in the database\n${ex}`);
+            throw `Failed to update data for client '${id}' in the database\n${ex}`;
         }
     }
 };
