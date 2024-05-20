@@ -105,7 +105,10 @@ fn load_config() -> Config {
         "window_title": ["^.* - Google Chrome$"]
     }, {
         "name": "Work",
-        "window_title": ["^.*(Visual Studio Code$)|(Microsoft Visual Studio( \\(Administrator\\))?$)"]
+        "window_title": [
+            "^.*Visual Studio Code$",
+            "^.*Microsoft Visual Studio( \\(Administrator\\))?$"
+        ]
     }, {
         "name": "Other",
         "window_title": ["^.*$"]
