@@ -86,6 +86,12 @@ fn load_config() -> Config {
     },
     "user_inactive_threshold": 300,
     "categories": [{
+        "name": "Steam",
+        "process_path": ["^.*steamwebhelper.exe$"]
+    }, {
+        "name": "Gaming",
+        "process_path": ["^.*steamapps\\\\common\\\\.*\\.exe$"]
+    }, {
         "name": "Reddit",
         "window_title": ["^.*(Reddit)|(: r/).*$"]
     }, {
@@ -100,9 +106,6 @@ fn load_config() -> Config {
     }, {
         "name": "Work",
         "window_title": ["^.*(Visual Studio Code$)|(Microsoft Visual Studio( \\(Administrator\\))?$)"]
-    }, {
-        "name": "Gaming",
-        "process_path": ["^.*steamapps\\\\common\\\\.*\\.exe$"]
     }, {
         "name": "Other",
         "window_title": ["^.*$"]
