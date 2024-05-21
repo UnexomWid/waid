@@ -151,7 +151,13 @@ unsafe fn get_window_at(pos: POINT) -> (String, String) {
     let mut pid = 0;
     GetWindowThreadProcessId(handle, Some(&mut pid));
 
-    let proc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid).unwrap();
+    let proc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid);
+
+    if let Err(_) = proc {
+        return (title, String::default());
+    }
+
+    let proc = proc.unwrap();
 
     let mut path: [u16; MAX_PATH as usize] = [0; MAX_PATH as usize];
 
