@@ -6,29 +6,35 @@
  * (c) 2024 UW
  */
 use windows::Win32::{
-    Foundation::{HWND, MAX_PATH, POINT, CloseHandle},
-    UI::{
-        WindowsAndMessaging::{GetCursorPos, GetParent, GetWindowTextW, WindowFromPoint, GetWindowThreadProcessId},
-        Input::KeyboardAndMouse::{GetLastInputInfo, LASTINPUTINFO}
-    },
+    Foundation::{CloseHandle, HWND, MAX_PATH, POINT},
     System::{
-        SystemInformation::{GetTickCount},
-        ProcessStatus::{GetModuleFileNameExW},
-        Threading::{OpenProcess, PROCESS_QUERY_INFORMATION, PROCESS_VM_READ}
-    }
+        ProcessStatus::GetModuleFileNameExW,
+        SystemInformation::GetTickCount,
+        Threading::{OpenProcess, PROCESS_QUERY_INFORMATION, PROCESS_VM_READ},
+    },
+    UI::{
+        Input::KeyboardAndMouse::{GetLastInputInfo, LASTINPUTINFO},
+        WindowsAndMessaging::{
+            GetCursorPos, GetParent, GetWindowTextW, GetWindowThreadProcessId, WindowFromPoint,
+        },
+    },
 };
 
-use serde::{Serialize, Deserialize};
-use reqwest::blocking::{Client};
+use reqwest::blocking::Client;
+use serde::{Deserialize, Serialize};
+
+use uiautomation::types::UIProperty;
+use uiautomation::Result;
+use uiautomation::UIAutomation;
 
 use regex::Regex;
 use std::collections::HashMap;
-use std::fs;
 use std::env;
+use std::fs;
 use std::path::Path;
 use std::process::Command;
 use std::thread::sleep;
-use time::{OffsetDateTime, Date};
+use time::{Date, OffsetDateTime};
 
 #[derive(Deserialize)]
 struct Server {
@@ -42,9 +48,11 @@ struct Server {
 struct Category {
     name: String,
     #[serde(with = "serde_regex", default)]
-    window_title: Vec<Regex>,
+    process_path: Vec<Regex>,
     #[serde(with = "serde_regex", default)]
-    process_path: Vec<Regex>
+    url: Vec<Regex>,
+    #[serde(with = "serde_regex", default)]
+    window_title: Vec<Regex>,
 }
 
 #[derive(Deserialize)]
@@ -56,15 +64,23 @@ struct Config {
 
 #[derive(Serialize)]
 struct ActivityData {
-    entries: HashMap::<String, HashMap::<String, u64>>
+    entries: HashMap<String, HashMap<String, u64>>,
 }
 
 impl ActivityData {
     pub fn new() -> Self {
         ActivityData {
-            entries: HashMap::new()
+            entries: HashMap::new(),
         }
     }
+}
+
+#[derive(PartialEq)]
+enum BrowserType {
+    Unknown,
+    Chrome,
+    Edge,
+    Firefox
 }
 
 fn load_config() -> Config {
@@ -101,14 +117,17 @@ fn load_config() -> Config {
         "name": "Messenger",
         "window_title": ["^Messenger - Google Chrome$"]
     }, {
-        "name": "Browsing",
-        "window_title": ["^.* - Google Chrome$"]
-    }, {
         "name": "Work",
+        "url": [
+            "^(http(s)?://)?stackoverflow.com.*$"
+        ],
         "window_title": [
             "^.*Visual Studio Code$",
             "^.*Microsoft Visual Studio( \\(Administrator\\))?$"
         ]
+    }, {
+        "name": "Browsing",
+        "window_title": ["^.* - Google Chrome$"]
     }, {
         "name": "Other",
         "window_title": ["^.*$"]
@@ -124,6 +143,15 @@ fn load_config() -> Config {
     serde_json::from_str(&config_file).expect("File waid.json is invalid")
 }
 
+fn get_browser_type(exe: &str) -> BrowserType {
+    match exe {
+        "chrome.exe" => BrowserType::Chrome,
+        "msedge.exe" => BrowserType::Edge,
+        "firefox.exe" => BrowserType::Firefox,
+        _ => BrowserType::Unknown
+    }
+}
+
 unsafe fn get_cursor_pos() -> POINT {
     let mut loc: POINT = POINT::default();
 
@@ -132,7 +160,7 @@ unsafe fn get_cursor_pos() -> POINT {
     return loc;
 }
 
-unsafe fn get_window_at(pos: POINT) -> (String, String) {
+unsafe fn get_window_at(pos: POINT) -> (HWND, String, String) {
     let mut handle = WindowFromPoint(pos);
     let mut parent = GetParent(handle);
 
@@ -154,7 +182,7 @@ unsafe fn get_window_at(pos: POINT) -> (String, String) {
     let proc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid);
 
     if let Err(_) = proc {
-        return (title, String::default());
+        return (handle, title, String::default());
     }
 
     let proc = proc.unwrap();
@@ -168,19 +196,81 @@ unsafe fn get_window_at(pos: POINT) -> (String, String) {
 
     CloseHandle(proc).unwrap();
 
-    return (title, path);
+    return (handle, title, path);
 }
 
-fn get_window_category(title: &str, path: &str, config: &Config) -> String {
+fn get_url_from_browser_window(hwnd: HWND, browser: BrowserType) -> Result<String> {
+    if browser == BrowserType::Unknown {
+        return Ok(String::default());
+    }
+
+    let automation = UIAutomation::new()?;
+
+    let mut root = automation.element_from_handle(hwnd.into())?;
+    let mut control_name = "Address and search bar";
+
+    let walker = automation.get_control_view_walker()?;
+
+    match browser {
+        BrowserType::Chrome => {
+            root = walker.get_first_child(&root)?;
+            root = walker.get_next_sibling(&root)?; // - Intermediate D3D Window
+            root = walker.get_next_sibling(&root)?; // - TitleBar
+            root = walker.get_next_sibling(&root)?; // - Pane
+            root = walker.get_first_child(&root)?;  //   - Pane
+            root = walker.get_first_child(&root)?;  //     - Pane
+            root = walker.get_next_sibling(&root)?; //     - Pane
+            root = walker.get_first_child(&root)?;  //       - Pane
+            root = walker.get_first_child(&root)?;  //         - Tab
+            root = walker.get_next_sibling(&root)?; //         - Toolbar
+        },
+        BrowserType::Edge => {
+            root = walker.get_first_child(&root)?;
+            root = walker.get_next_sibling(&root)?; // - Intermediate D3D Window
+        },
+        BrowserType::Firefox => {
+            control_name = "Search with Google or enter address";
+
+            root = walker.get_first_child(&root)?;  // - ToolBar
+            root = walker.get_next_sibling(&root)?; // - ToolBar
+            root = walker.get_next_sibling(&root)?; // - Toolbar
+        }
+        _ => {
+            todo!()
+        }
+    }
+
+    let matcher = automation
+        .create_matcher()
+        .from(root)
+        .timeout(0)
+        .depth(50)
+        .name(control_name);
+    let search_bar = matcher.find_first()?;
+
+    return Ok(search_bar
+        .get_property_value(UIProperty::ValueValue)?
+        .get_string()?);
+}
+
+fn get_window_category(title: &str, path: &str, url: &Option<String>, config: &Config) -> String {
     for cat in &config.categories {
-        for expr in &cat.window_title {
-            if expr.is_match(title) {
+        for expr in &cat.process_path {
+            if expr.is_match(path) {
                 return String::from(&cat.name);
             }
         }
 
-        for expr in &cat.process_path {
-            if expr.is_match(path) {
+        if let Some(url) = &url {
+            for expr in &cat.url {
+                if expr.is_match(&url) {
+                    return String::from(&cat.name);
+                }
+            }
+        }
+
+        for expr in &cat.window_title {
+            if expr.is_match(title) {
                 return String::from(&cat.name);
             }
         }
@@ -190,7 +280,12 @@ fn get_window_category(title: &str, path: &str, config: &Config) -> String {
 }
 
 fn format_date(date: Date) -> String {
-    return format!("{}-{:0>2}-{:0>2}", date.year(), u8::from(date.month()), u8::from(date.day()));
+    return format!(
+        "{}-{:0>2}-{:0>2}",
+        date.year(),
+        u8::from(date.month()),
+        u8::from(date.day())
+    );
 }
 
 unsafe fn get_user_last_active() -> u32 {
@@ -204,17 +299,25 @@ unsafe fn get_user_last_active() -> u32 {
 
     // GetTickCount() will overflow and become 0 after 49.7 days
     // Check if there was an overflow, and if so, correct the formula
-    if ticks >= last.dwTime { ticks - last.dwTime } else { u32::MAX - last.dwTime + ticks }
+    if ticks >= last.dwTime {
+        ticks - last.dwTime
+    } else {
+        u32::MAX - last.dwTime + ticks
+    }
 }
 
 fn send_data_to_server(client: &mut Client, data: &mut ActivityData, config: &Config) -> bool {
-    if !config.server.enable || data.entries.len() == 0{
+    if !config.server.enable || data.entries.len() == 0 {
         return true;
     }
 
     println!("Sending data to server...");
 
-    let res = client.post(&config.server.endpoint).header("X-Secret", &config.server.secret).json(&data).send();
+    let res = client
+        .post(&config.server.endpoint)
+        .header("X-Secret", &config.server.secret)
+        .json(&data)
+        .send();
 
     if let Ok(res) = res {
         if res.status().is_success() {
@@ -260,10 +363,19 @@ fn main() {
                 println!("WAID (server error)\n---");
             }
 
-            let (title, path) = get_window_at(get_cursor_pos());
+            let (hwnd, title, path) = get_window_at(get_cursor_pos());
+            let exe = Path::new(&path).file_name().unwrap().to_str().unwrap();
+
+            // Check if the active window is a browser, and if so, get the URL
+            let browser = get_browser_type(&exe);
+
+            let url = match get_url_from_browser_window(hwnd, browser) {
+                Ok(u) => Some(u),
+                _ => None
+            };
 
             // TODO: PID cache; if the pid and title are the same, get the category from cache
-            let category = get_window_category(&title, &path, &config);
+            let category = get_window_category(&title, &path, &url, &config);
 
             let now = OffsetDateTime::now_local().unwrap();
 
@@ -285,7 +397,13 @@ fn main() {
                         if user_last_active >= config.user_inactive_threshold {
                             println!("INACTIVE");
                         } else {
-                            println!("Title: {}\nPath: {}\nDetected: {}", title, path, category);
+                            println!("Title: {}\nPath: {}", title, path);
+
+                            if let Some(url) = &url {
+                                println!("URL: {}", &url);
+                            }
+
+                            println!("Detected: {}", &category);
 
                             let date = format_date(now.date());
 
