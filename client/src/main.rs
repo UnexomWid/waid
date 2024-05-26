@@ -214,7 +214,16 @@ fn get_url_from_browser_window(hwnd: HWND, browser: BrowserType) -> Result<Strin
     match browser {
         BrowserType::Chrome => {
             root = walker.get_first_child(&root)?;
-            root = walker.get_next_sibling(&root)?; // - Intermediate D3D Window
+
+            // Intermediate D3D Window is right before the parent of the node that contains the data we're interested in.
+            loop {
+                if root.get_classname().unwrap().contains("Intermediate") {
+                    break;
+                }
+
+                root = walker.get_next_sibling(&root)?;
+            }
+
             root = walker.get_next_sibling(&root)?; // - TitleBar
             root = walker.get_next_sibling(&root)?; // - Pane
             root = walker.get_first_child(&root)?;  //   - Pane
@@ -225,10 +234,22 @@ fn get_url_from_browser_window(hwnd: HWND, browser: BrowserType) -> Result<Strin
             root = walker.get_next_sibling(&root)?; //         - Toolbar
         },
         BrowserType::Edge => {
+            // Detection quirk: slower than Chrome/Firefox
             root = walker.get_first_child(&root)?;
-            root = walker.get_next_sibling(&root)?; // - Intermediate D3D Window
+
+            // Intermediate D3D Window is right before the parent of the node that contains the data we're interested in.
+            loop {
+                if root.get_classname().unwrap().contains("Intermediate") {
+                    break;
+                }
+
+                root = walker.get_next_sibling(&root)?; // - BrowserRootView
+            }
+
+            root = walker.get_next_sibling(&root)?;
         },
         BrowserType::Firefox => {
+            // Detection quirk: doesn't work while the context menu is open
             control_name = "Search with Google or enter address";
 
             root = walker.get_first_child(&root)?;  // - ToolBar
@@ -364,7 +385,7 @@ fn main() {
             }
 
             let (hwnd, title, path) = get_window_at(get_cursor_pos());
-            let exe = Path::new(&path).file_name().unwrap().to_str().unwrap();
+            let exe = Path::new(&path).file_name().unwrap_or_default().to_string_lossy();
 
             // Check if the active window is a browser, and if so, get the URL
             let browser = get_browser_type(&exe);
