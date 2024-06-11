@@ -217,8 +217,14 @@ fn get_url_from_browser_window(hwnd: HWND, browser: BrowserType) -> Result<Strin
 
             // Intermediate D3D Window is right before the parent of the node that contains the data we're interested in.
             loop {
-                if root.get_classname().unwrap().contains("Intermediate") {
-                    break;
+                let classname = root.get_classname();
+
+                if let Ok(name) = classname {
+                    if name.contains("Intermediate") {
+                        break;
+                    }
+                } else {
+                    return Ok(String::default());
                 }
 
                 root = walker.get_next_sibling(&root)?;
