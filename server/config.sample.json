@@ -33,5 +33,9 @@
         "Other": {
             "color": "#A5A5A5"
         }
+    },
+    "page": {
+        "title_1": "What the fuck",
+        "title_2": "am I doing?"
     }
 }
