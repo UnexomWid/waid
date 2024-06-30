@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>WAID</title>
+
+    <link rel="stylesheet" href="/style.css">
+
+    <script src="/chart.js"></script>
+  </head>
+  <body>
+    <div id="container">
+        <div id="title-container">
+            <h1 id="title-left" class="title">[|context.title_1|]</h1>
+            <img id="logo" src="/logo.png" />
+            <h1 id="title-right" class="title">[|context.title_2|]</h1>
+        </div>
+
+        <h2 id="subtitle">&mdash; time flies, life's progress remains &mdash;</h2>
+
+        <div id="input-container">
+            <input type="date" id="date" />
+        </div>
+
+        <canvas id="pie"></canvas>
+        <canvas id="bar"></canvas>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded',function () {
+            const date = document.getElementById('date');
+            const pie = document.getElementById('pie');
+            const bar = document.getElementById('bar');
+
+            let pieChart = null;
+            let barChart = null;
+
+            document.getElementById('logo').addEventListener('click', (e) => {
+                onDateChange(date.value);
+            });
+
+            document.addEventListener('change', (e) => {
+                onDateChange(e.target.value);
+            });
+
+            function onDateChange(value) {
+                fetch(`/api/activity?date=${value}`)
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error("Fetch failed")
+                        }
+
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (pieChart) {
+                            pieChart.destroy();
+                            pieChart = null;
+                        }
+
+                        if (barChart) {
+                            barChart.destroy();
+                            barChart = null;
+                        }
+
+                        if (Object.keys(data).length > 0) {
+                            // TODO: add support for multiple clients
+                            renderCharts(data.default);
+                        }
+                    });
+            }
+
+            function fmtDate(date) {
+                return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+            }
+
+            function changeDate(newDate) {
+                date.value = `${fmtDate(newDate)}`;
+                onDateChange(date.value);
+            }
+
+            changeDate(new Date());
+
+            document.addEventListener('keydown', (e) => {
+                switch(e.keyCode) {
+                    case 37: { // Left
+                        const newDate = new Date(date.value);
+                        newDate.setDate(newDate.getDate() - 1);
+                        changeDate(newDate);
+                        break;
+                    }
+                    case 39: { // Right
+                        const newDate = new Date(date.value);
+                        newDate.setDate(newDate.getDate() + 1);
+                        newDate.setHours(0, 0, 0, 0);
+
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        if (newDate <= today) {
+                            // No reason to go in the future
+                            changeDate(newDate);
+                        }
+                        break;
+                    }
+                }
+            });
+
+            // https://stackoverflow.com/questions/28569667/fill-chart-js-bar-chart-with-diagonal-stripes-or-other-patterns
+            function createDiagonalPattern(color) {
+                // 8x8 stripe pattern
+                let canvas = document.createElement('canvas')
+                canvas.width = 8
+                canvas.height = 8
+
+                let ctx = canvas.getContext('2d')
+
+                ctx.strokeStyle = color
+                ctx.beginPath()
+                ctx.moveTo(2, 0)
+                ctx.lineTo(8, 6)
+                ctx.stroke()
+
+                ctx.beginPath()
+                ctx.moveTo(0, 6)
+                ctx.lineTo(2, 8)
+                ctx.stroke()
+
+                return ctx.createPattern(canvas, 'repeat')
+            }
+
+            function fmtHours(num) {
+                const hrs = num / 3600000;
+                const fixed = hrs.toFixed(1);
+
+                if (fixed.charAt(fixed.length - 1) === '0') {
+                    // Remove trailing .0
+                    return `${Math.floor(fixed).toString()}h`;
+                }
+
+                return `${fixed}h`;
+            }
+
+            function renderCharts(data) {
+                const pie_labels = [];
+                const pie_times = [];
+                const pie_colors = [];
+
+                const bar_datasets = [];
+                let activity = 0;
+
+                for (const [category, entry] of Object.entries(data)) {
+                    pie_labels.push(category);
+                    pie_times.push(entry.time);
+                    pie_colors.push(entry.color);
+
+                    bar_datasets.push({
+                        label: category,
+                        data: [entry.time],
+                        backgroundColor: entry.color
+                    });
+
+                    activity += entry.time;
+                }
+
+                const MS_IN_8H = 28800000;
+                const MS_IN_16H = MS_IN_8H * 2;
+                const MS_IN_24H = MS_IN_8H * 3;
+
+                const sleep = Math.min(MS_IN_8H, MS_IN_24H - activity);
+                let free = 0;
+
+                if (activity < MS_IN_16H) {
+                    // There is free time
+                    free = MS_IN_24H - activity - sleep;
+
+                    bar_datasets.push({
+                        label: "Free Time",
+                        data: [free]
+                    });
+                }
+
+                if (activity < MS_IN_24H) {
+                    bar_datasets.push({
+                        label: 'Sleep',
+                        data: [sleep],
+                        backgroundColor: createDiagonalPattern(sleep == MS_IN_8H ? 'black' : 'red')
+                    });
+                }
+
+                pieChart = new Chart(pie, {
+                    type: 'pie',
+                    data: {
+                        labels: pie_labels,
+                        datasets: [{
+                            label: 'Time',
+                            data: pie_times,
+                            backgroundColor: pie_colors,
+                            hoverOffset: 50
+                        }]
+                    },
+                    options: {
+                        layout: {
+                            padding: 25
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                fullSize: false,
+                                text: "PC",
+                                padding: 10
+                            },
+                            legend: {
+                                position: 'bottom',
+                                title: {
+                                    display: true,
+                                    padding: 5
+                                }
+                            },
+                            tooltip: { 
+                                callbacks: {
+                                    label: (context) => {
+                                        let label = context.dataset.label || '';
+
+                                        if (label) {
+                                            label += ': ';
+                                        }
+
+                                        return label + fmtHours(context.parsed);
+                                    }
+                                }
+                            },
+                        }
+                    }
+                });
+
+                barChart = new Chart(bar, {
+                    type: 'bar',
+                    data: {
+                        labels: [''],
+                        datasets: bar_datasets,
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        scales: {
+                            x: { // Activity axis
+                                position: 'bottom',
+                                min: 0,
+                                max: MS_IN_24H,
+                                stacked: true,
+                                border: {
+                                    display: false
+                                },
+                                grid: {
+                                    display: true
+                                },
+                                ticks: {
+                                    callback: (value) => {
+                                        if (value === activity) {
+                                            return `Activity (${fmtHours(activity)})`;
+                                        }
+                                        return undefined;
+                                    },
+                                    // Step size starts from the end
+                                    stepSize: MS_IN_24H,
+                                    maxRotation: 0,
+                                    align: 'end'
+                                },
+                                afterBuildTicks: (scale) => {
+                                    scale.ticks = [
+                                        { value: activity } // Activity
+                                    ]
+                                }
+                            },
+                            x1: { // Sleep axis
+                                position: 'top',
+                                min: 0,
+                                max: MS_IN_24H,
+                                stacked: true,
+                                border: {
+                                    display: false
+                                },
+                                grid: {
+                                    display: true
+                                },
+                                ticks: {
+                                    callback: (value) => {
+                                        if (value === MS_IN_24H - sleep) {
+                                            return `Sleep (${fmtHours(sleep)})`;
+                                        }
+                                        if (free && value === MS_IN_24H - sleep - free) {
+                                            return `Free (${fmtHours(free)})`;
+                                        }
+                                        return undefined;
+                                    },
+                                    // Step size starts from the end
+                                    stepSize: MS_IN_24H,
+                                    maxRotation: 30,
+                                    minRotation: 30,
+                                    align: 'start'
+                                },
+                                afterBuildTicks: (scale) => {
+                                    scale.ticks = [
+                                        { value: MS_IN_24H - sleep } // Sleep
+                                    ];
+
+                                    //          free > 1.2h
+                                    if (free && free > 4320000) {
+                                        scale.ticks.push({ value: MS_IN_24H - sleep - free }); // Free
+                                    }
+                                }
+                            },
+                            y: {
+                                stacked: true,
+                                border: {
+                                    display: false
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        layout: {
+                            padding: 25
+                        },
+                        plugins: {
+                            title: {
+                                display: false
+                            },
+                            legend: {
+                                display: false
+                            },
+                            tooltip: { 
+                                callbacks: {
+                                    label: (context) => {
+                                        let label = context.dataset.label || '';
+
+                                        if (label) {
+                                            label += ': ';
+                                        }
+
+                                        return label + fmtHours(context.parsed.x);
+                                    }
+                                }
+                            },
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+  </body>
+</html>
