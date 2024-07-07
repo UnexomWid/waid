@@ -54,7 +54,7 @@ try {
     app.use(express.static(path.join(__dirname, '..', 'public')));
     app.use(router);
 
-    renderPages();
+    await renderPages();
 
     const server = http.createServer(app);
     log.ok('HTTP server initialized');

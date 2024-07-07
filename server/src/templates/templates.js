@@ -6,7 +6,7 @@ import path from  'path';
 import { dirname } from '../common.js'
 const __dirname = dirname(import.meta);
 
-function renderPages()
+async function renderPages()
 {
     const pageConfig = config.get("page");
 
@@ -16,7 +16,7 @@ function renderPages()
     }).toString('utf8');
 
     const indexPath = path.join(__dirname, "../../public/index.html")
-    fs.writeFileSync(indexPath, page);
+    await fs.promises.writeFile(indexPath, page)
 }
 
 export default renderPages;
