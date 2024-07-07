@@ -11,6 +11,8 @@ import log from './log.js';
 import router from './router.js';
 import config from './config.js';
 
+import renderPages from './templates/templates.js';
+
 import { dirname } from './common.js'
 const __dirname = dirname(import.meta);
 
@@ -25,7 +27,7 @@ console.log();
 // Load config
 try {
     await config.init();
-} catch(ex) {
+} catch (ex) {
     log.error(`Failed to load 'config.json'\n${ex}`);
     process.exit(1);
 }
@@ -37,7 +39,7 @@ try {
     await db.init();
 
     log.ok("Database initialized");
-} catch(ex) {
+} catch (ex) {
     log.error(ex);
     process.exit(3);
 }
@@ -52,6 +54,8 @@ try {
     app.use(express.static(path.join(__dirname, '..', 'public')));
     app.use(router);
 
+    await renderPages();
+
     const server = http.createServer(app);
     log.ok('HTTP server initialized');
 
@@ -61,6 +65,6 @@ try {
     console.log();
 
     log.ok(`Magic is happening on http://${config.get('host')}:${config.get('port')}\n`);
-} catch(ex) {
+} catch (ex) {
     log.error(`Server initialization failed\n${ex.stack}`);
 }
