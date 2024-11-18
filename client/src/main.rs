@@ -115,7 +115,7 @@ fn load_config() -> Config {
         "window_title": ["^.*YouTube - Google Chrome$"]
     }, {
         "name": "Messenger",
-        "window_title": ["^Messenger - Google Chrome$"]
+        "window_title": ["^.*Messenger - Google Chrome$"]
     }, {
         "name": "Work",
         "url": [
