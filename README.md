@@ -72,7 +72,11 @@ Use the default config as an example. If it's still not clear how to add your cu
 
 `process_path` is the same, but it looks at the process path of the window. **Use `\\\\` for path separators, otherwise the regexes won't match!**.
 
-You can include both of those fields inside a category if you need to.
+`url` is also an array of regexes; if the current window is a browser, the URL is matched against these values. Currently, only Chrome, Edge and Firefox are supported.
+
+You can include all of those fields inside a category if you need to. The order of matching is:
+
+`process_path` --no match--> `url` --no match--> `window_title`
 
 The priority is based on the order of the categories. The first category is checked first; if it doesn't match, the second is checked, and so on.
 
@@ -107,6 +111,8 @@ Instead of looking at the current focused window, the tool looks at the window o
 Why? Because you could have focus on the Visual Studio window, while scrolling on Reddit.
 
 It detects the window title and process path, and picks the current activity based on the config file.
+
+If the current window is a browser (Chrome/Edge/Firefox), it also attempts to detect and use the URL in order to pick the current activity.
 
 If you don't use your keyboard or mouse for a period of time (see the client config), the tool will stop tracking until you are active again.
 
